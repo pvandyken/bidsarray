@@ -97,7 +97,7 @@ While the tabular output could be used for any number of purposes, it really shi
 bidsarray <PRELUDE...> ::: <COMPONENT 1> ::: <COMPONENT 2> | parallel --colsep '\t' echo 1={1} 2={2}
 ```
 
-The `--cosep` argument to `parallel` allows it to read from an incoming columnar data. We use `\t` as the argument to read `bidsarray` tabular data.
+The `--colsep` argument to `parallel` allows it to read from an incoming columnar data. We use `\t` as the argument to read `bidsarray` tabular data.
 
 ### Examples
 
@@ -135,7 +135,7 @@ The simplest is to prepend the command with `eval` to remove all escapes:
 
 ```bash
 bidsarray . derivatives/average \
-    ::: --input --filter suffix=T1w extension=.nii.gz --groupby subject session --aggregate run
+    ::: --input --filter suffix=T1w extension=.nii.gz --groupby subject session --aggregate run \
     ::: --output --entities suffix=T1w.nii.gz datatype=anat \
     parallel --bar --colsep '\t' eval mrcalc {1} -add {2}
 ```
@@ -144,7 +144,7 @@ This may not work with complex commands, as eval will aggressively strip away qu
 
 ```bash
 bidsarray . derivatives/average \
-    ::: --input --filter suffix=T1w extension=.nii.gz --groupby subject session --aggregate run
+    ::: --input --filter suffix=T1w extension=.nii.gz --groupby subject session --aggregate run \
     ::: --output --entities suffix=T1w.nii.gz datatype=anat \
     parallel --bar --colsep '\t' mrcalc {=1 uq=} -mean {2}
 ```
