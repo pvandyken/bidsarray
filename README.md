@@ -150,3 +150,15 @@ bidsarray . derivatives/average \
 ```
 
 `uq` will only apply to the targeted variable. This approach is not compatible with labels.
+
+# Motivation and Design
+
+`bidsarray` was built both to be a useful tool and a demonstration of the `bidsapp` module in [`snakebids`](https://github.com/khanlab/snakebids). The parsing, components, and CLI are all provided by `snakebids`, so `bidsarray` can organize a tabular output with just a few small files.
+
+`snakebids.bidsapp` uses a system of hooks and plugins to build an app. In <bidsarray/run.py>, three hooks can be seen:
+
+* `get_argv`: Retrieve the provided CLI arguments and split them at `:::`. This will allow the app to seperately parse the command prelude and each of the components. The prelude arguments are returned to be parsed by the bidsapp, and the components are saved into the `config` to be parsed later.
+* `finalize_config`: The prelude has now been parsed by bidsapp. We retrieve the components arguments we saved earlier and parse them (using functions in <bidsarray/component.py>). The results are saved back into `config`
+* `run`: We use configured components we calculated earlier and call `generate_inputs`, which uses pybids to parse the input dataset and create a [`BidsDataset`](https://snakebids.readthedocs.io/en/stable/api/structures.html#snakebids.BidsDataset). The methods on this dataset can be used to retrieve and organize the indexed paths.
+
+[`snakebids.bidsapp.app`](https://snakebids.readthedocs.io/en/stable/api/app.html#snakebids.bidsapp.app) is used to create the app with several plugins, providing the basic functionality. The last plugin: `sys.modules[__name__]`, loads the hooks defined in the `run.py` file so that the app will work. Finally, the entrypoint `app.run()` is called behind an `if __name__ == "__main__"` block. It's also specified in the `pyproject.toml` file as a script.

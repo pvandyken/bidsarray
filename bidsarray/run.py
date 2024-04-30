@@ -19,6 +19,10 @@ from bidsarray.consensus import consensus_table
 set_bids_spec("v0_11_0")
 
 
+def get_parser():
+    """Exposes parser for sphinx doc generation, cwd is the docs dir."""
+    return app.build_parser().parser
+
 @bidsapp.hookimpl
 def get_argv(argv: list[str], config: dict[str, Any]):
     main_args, *components = itx.split_at(argv, lambda x: x == ":::")
@@ -53,9 +57,6 @@ def finalize_config(config: dict[str, Any]):
         config["labels"] = labels
 
 
-def get_parser():
-    """Exposes parser for sphinx doc generation, cwd is the docs dir."""
-    return app.build_parser().parser
 
 
 @bidsapp.hookimpl
