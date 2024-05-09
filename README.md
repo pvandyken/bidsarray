@@ -43,11 +43,13 @@ The `label` is optional: if provided, it will add a header row to the top of the
 ::: --input --filter suffix=dwi datatype=dwi extension=.nii.gz
 ```
 
-`METHOD` tells the filter how to do the selection. By default, it looks for an exact match, but regex can also be used using `:match` and `:search`:
+~`METHOD` tells the filter how to do the selection. By default, it looks for an exact match, but regex can also be used using `:match` and `:search`:~
 
 ```bash
 ::: --input --filter 'suffix:match=[Tt][12]w?'
 ```
+
+**This doesn't actually work yet, it's coming soon to snakebids**
 
 Overall, `--filter` tends to REDUCE the number of rows in the output.
 
