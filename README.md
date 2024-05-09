@@ -151,6 +151,20 @@ bidsarray . derivatives/average \
 
 `uq` will only apply to the targeted variable. This approach is not compatible with labels.
 
+### Creating output folders
+
+Note that for most commands (especially any involving `--groupby`), you will likely need to create the ouput folders as part of the command. Use a command like this:
+
+```bash
+bidsarray . derivatives/template --derivatives \
+    ::: --input --filter suffix=mdp desc=FA extension=.nii.gz space=participant --groupby subject session \
+    ::: --input --filter suffix=xfm from=participant to=MNI6 extension=.nii.gz --groupby subject session \
+    ::: --input --filter suffix=T1w extension=.nii.gz space=MNI6 \
+    ::: --output --entities desc=FA datatype=dwi space=MNI6 suffix=mdp.nii.gz |
+    parallel --bar --colsep '\t' mkdir -p {4} \&\& antsApplyTransform -d3 -i {1} -o {4} -r {3} -t {2}
+```
+
+
 # Motivation and Design
 
 `bidsarray` was built both to be a useful tool and a demonstration of the `bidsapp` module in [`snakebids`](https://github.com/khanlab/snakebids). The parsing, components, and CLI are all provided by `snakebids`, so `bidsarray` can organize a tabular output with just a few small files.
