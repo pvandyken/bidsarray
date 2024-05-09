@@ -142,10 +142,6 @@ app = bidsapp.app(
         sys.modules[__name__],
     ],
 )
-app.parser.add_argument(
-    "--derivatives",
-    nargs="*",
-)
 
 
 if __name__ == "__main__":
