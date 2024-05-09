@@ -14,7 +14,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
-snakebids = { git = "https://github.com/pvandyken/snakebids.git", rev = "1298061"}
+snakebids = ">=0.13"
 more-itertools = "^10.2.0"
 
 [tool.poetry.scripts]

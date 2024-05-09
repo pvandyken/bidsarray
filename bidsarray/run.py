@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 from collections import defaultdict
 from typing import Any, cast
 import itertools as it
@@ -12,9 +13,10 @@ from snakebids import (
     set_bids_spec,
 )
 from snakebids.utils.containers import MultiSelectDict
+import json
 
 from bidsarray.component import parse_component
-from bidsarray.consensus import consensus_table
+from bidsarray.consensus import consensus_table, excluded_table
 
 set_bids_spec("v0_11_0")
 
@@ -22,6 +24,17 @@ set_bids_spec("v0_11_0")
 def get_parser():
     """Exposes parser for sphinx doc generation, cwd is the docs dir."""
     return app.build_parser().parser
+
+
+@bidsapp.hookimpl
+def add_cli_arguments(parser: argparse.ArgumentParser):
+    parser.add_argument(
+        "--skipped-wildcards",
+        default=False,
+        action="store_true",
+        help="Print wildcard card combinations not used due to missing components",
+    )
+
 
 @bidsapp.hookimpl
 def get_argv(argv: list[str], config: dict[str, Any]):
@@ -57,20 +70,39 @@ def finalize_config(config: dict[str, Any]):
         config["labels"] = labels
 
 
-
-
 @bidsapp.hookimpl
 def run(config: dict[str, Any]):
     pybids_inputs = config["pybids_inputs"]
+    derivatives = app.config["derivatives"]
+    derivatives = (
+        False if derivatives is None else True if derivatives == [] else derivatives
+    )
     inputs = generate_inputs(
         bids_dir=app.config["bids_dir"],
         pybids_inputs=cast("dict[str, Any]", app.config["pybids_inputs"]),
         pybidsdb_dir=app.config.get("pybidsdb_dir"),
         pybidsdb_reset=app.config.get("pybidsdb_reset", False),
-        derivatives=app.config.get("derivatives", False),
+        derivatives=derivatives,
         participant_label=app.config.get("participant_label"),
         exclude_participant_label=app.config.get("exclude_participant_label", None),
     )
+    if len(inputs) != len(app.config["pybids_inputs"]):
+        exit(1)
+    if config["skipped_wildcards"]:
+        table, comps = excluded_table(inputs)
+        keys = list(table.keys())
+        print(
+            json.dumps(
+                [
+                    {
+                        "wildcards": (wcards := dict(zip(keys, row))),
+                        "paths": [comp.path.format(**wcards) for comp in comps[i]],
+                    }
+                    for i, row in enumerate(zip(*table.values()))
+                ]
+            )
+        )
+        return
     table = consensus_table(inputs)
     grouped_entities = tuple(
         set(
@@ -110,6 +142,11 @@ app = bidsapp.app(
         sys.modules[__name__],
     ],
 )
+app.parser.add_argument(
+    "--derivatives",
+    nargs="*",
+)
+
 
 if __name__ == "__main__":
     app.run()
