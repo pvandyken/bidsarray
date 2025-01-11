@@ -4,6 +4,7 @@ from typing import Any
 import argparse
 from snakebids.utils.utils import text_fold
 from snakebids.plugins.component_edit import FilterParse
+from snakebids.types import OptionalFilter
 import functools as ft
 import itertools as it
 
@@ -113,7 +114,9 @@ def parse_component(ix: int, component_args: list[str], config: dict[str, Any]):
         if parsed.filter is not None:
             comp_config["filters"] = {}
             for entity, filter_ in parsed.filter.items():
-                if isinstance(filter_, (bool, str)):
+                if filter_ is OptionalFilter:
+                    comp_config["filters"].pop(entity, None)
+                else:
                     comp_config["filters"][entity] = filter_
         comp_config["wildcards"] = list(
             it.chain(parsed.aggregate or [], parsed.groupby or [])  # type: ignore
@@ -122,5 +125,6 @@ def parse_component(ix: int, component_args: list[str], config: dict[str, Any]):
     else:
         comp_config = config["outputs"][label]
         comp_config["entities"] = parsed.entities or {}
+
 
     comp_config["order"] = ix

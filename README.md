@@ -43,11 +43,13 @@ The `label` is optional: if provided, it will add a header row to the top of the
 ::: --input --filter suffix=dwi datatype=dwi extension=.nii.gz
 ```
 
-`METHOD` tells the filter how to do the selection. By default, it looks for an exact match, but regex can also be used using `:match` and `:search`:
+~`METHOD` tells the filter how to do the selection. By default, it looks for an exact match, but regex can also be used using `:match` and `:search`:~
 
 ```bash
 ::: --input --filter 'suffix:match=[Tt][12]w?'
 ```
+
+**This doesn't actually work yet, it's coming soon to snakebids**
 
 Overall, `--filter` tends to REDUCE the number of rows in the output.
 
@@ -161,7 +163,7 @@ bidsarray . derivatives/template --derivatives \
     ::: --input --filter suffix=xfm from=participant to=MNI6 extension=.nii.gz --groupby subject session \
     ::: --input --filter suffix=T1w extension=.nii.gz space=MNI6 \
     ::: --output --entities desc=FA datatype=dwi space=MNI6 suffix=mdp.nii.gz |
-    parallel --bar --colsep '\t' mkdir -p {4} \&\& antsApplyTransform -d3 -i {1} -o {4} -r {3} -t {2}
+    parallel --bar --colsep '\t' mkdir -p \`dirname {4}\` \&\& antsApplyTransform -d3 -i {1} -o {4} -r {3} -t {2}
 ```
 
 
